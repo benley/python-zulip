@@ -1,5 +1,9 @@
 *.py[cod]
 
+# Editor turds
+.*.swp
+~*
+
 # C extensions
 *.so
 

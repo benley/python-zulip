@@ -1,0 +1,47 @@
+python-zulip (0.2.2-3) precise; urgency=low
+
+  * Integrations and examples moved to /usr/share/doc/python-zulip
+
+ -- Benjamin Staffin <ben@cloudscaling.com>  Sun, 01 Dec 2013 16:57:23 -0800
+
+python-zulip (0.2.2-2) precise; urgency=low
+
+  * Added docs.
+
+ -- Benjamin Staffin <ben@cloudscaling.com>  Sun, 01 Dec 2013 14:32:12 -0800
+
+python-zulip (0.2.2-1) precise; urgency=low
+
+  * Imported Upstream version 0.2.2
+
+ -- Benjamin Staffin <ben@cloudscaling.com>  Thu, 14 Nov 2013 01:16:51 -0800
+
+python-zulip (0.2.1-1) precise; urgency=low
+
+  * Imported Upstream version 0.2.1
+
+ -- Benjamin Staffin <ben@cloudscaling.com>  Mon, 21 Oct 2013 14:43:38 -0700
+
+python-zulip (0.2.0-4) precise; urgency=low
+
+  * Specify high-enough requests requirement in setup.py
+
+ -- Benjamin Staffin <ben@cloudscaling.com>  Wed, 04 Sep 2013 16:13:51 -0700
+
+python-zulip (0.2.0-3) precise; urgency=low
+
+  * Okay, I guess some build-depends help.
+
+ -- Benjamin Staffin <ben@cloudscaling.com>  Wed, 04 Sep 2013 00:43:04 -0700
+
+python-zulip (0.2.0-2) precise; urgency=low
+
+  * Added dependencies on simplejson, requests
+
+ -- Benjamin Staffin <ben@cloudscaling.com>  Tue, 03 Sep 2013 23:23:15 -0700
+
+python-zulip (0.2.0-1) unstable; urgency=low
+
+  * Initial packaging for Debian
+
+ -- Benjamin Staffin <ben@cloudscaling.com>  Tue, 03 Sep 2013 20:08:17 -0700

@@ -1,0 +1,23 @@
+Source: python-zulip
+Section: python
+Priority: extra
+Maintainer: Benjamin Staffin <ben@cloudscaling.com>
+Build-Depends: debhelper (>= 8.0.0),
+ python | python-all | python-dev | python-all-dev,
+ python-requests,
+ python-setuptools,
+ python-simplejson
+Standards-Version: 3.9.4
+Homepage: https://zulip.com/api/
+Vcs-Git: https://github.com/benley/python-zulip.git
+Vcs-Browser: https://github.com/benley/python-zulip
+
+Package: python-zulip
+Architecture: all
+Depends: ${misc:Depends}, ${python:Depends}
+Provides: ${python:Provides}
+Description: Client utilities for Zulip
+ Python client libraries and commandline utilities for the Zulip multi-user
+ chat system.
+ .
+ Documentation: https://zulip.com/api/endpoints/

@@ -1,0 +1,15 @@
+#!/usr/bin/make -f
+#export DH_VERBOSE=1
+
+%:
+	dh $@ --with python2
+
+override_dh_auto_clean:
+	rm -rf zulip.egg-info
+	dh_auto_clean
+
+override_dh_python2:
+	dh_python2
+	rm -rf debian/python-zulip/usr/share/zulip/integrations
+	rm -rf debian/python-zulip/usr/share/zulip/examples
+	rmdir debian/python-zulip/usr/share/zulip || true

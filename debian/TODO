@@ -1,0 +1,2 @@
+Some of the various zulip integrations could be separate packages, potentially with
+a bit of automation around setting them up.
