@@ -134,7 +134,7 @@ def strip_tags(html):
     return stripper.get_data()
 
 def compute_entry_hash(entry):
-    entry_time = entry.get("published", entry.get("updated"))
+    entry_time = entry.get("published", entry.get("updated", 0))
     return hashlib.md5(entry.id + entry_time).hexdigest()
 
 def send_zulip(entry, feed_name):
@@ -176,7 +176,8 @@ for feed_url in feed_urls:
     for entry in data.entries:
         entry_hash = compute_entry_hash(entry)
         # An entry has either been published or updated.
-        entry_time  = entry.get("published_parsed", entry.get("updated_parsed"))
+        entry_time  = entry.get("published_parsed", entry.get("updated_parsed",
+                                                              time.gmtime()))
         if (time.time() - calendar.timegm(entry_time)) > OLDNESS_THRESHOLD * 60 * 60 * 24:
             # As a safeguard against misbehaving feeds, don't try to process
             # entries older than some threshold.
