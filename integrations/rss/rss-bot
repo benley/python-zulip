@@ -137,7 +137,7 @@ def compute_entry_hash(entry):
     entry_time = entry.get("published", entry.get("updated", 0))
     return hashlib.md5(entry.id + entry_time).hexdigest()
 
-def send_zulip(entry, feed_name):
+def send_zulip(entry, feed_name, client):
     content = "**[%s](%s)**\n%s\n%s" % (entry.title,
                                   entry.link,
                                   strip_tags(entry.summary),
@@ -150,61 +150,66 @@ def send_zulip(entry, feed_name):
                }
     return client.send_message(message)
 
-try:
-    with open(opts.feed_file, "r") as f:
-        feed_urls = [feed.strip() for feed in f.readlines()]
-except IOError:
-    log_error_and_exit("Unable to read feed file at %s." % (opts.feed_file,))
-
-client = zulip.Client(email=opts.email, api_key=opts.api_key,
-                       site=opts.site)
-
-first_message = True
-
-for feed_url in feed_urls:
-    feed_file = os.path.join(opts.data_dir, urlparse.urlparse(feed_url).netloc)
-
+def main():
     try:
-        with open(feed_file, "r") as f:
-            old_feed_hashes = dict((line.strip(), True) for line in f.readlines())
+        with open(opts.feed_file, "r") as f:
+            feed_urls = [feed.strip() for feed in f.readlines()]
     except IOError:
-        old_feed_hashes = {}
+        log_error_and_exit("Unable to read feed file at %s." % (opts.feed_file,))
 
-    new_hashes = []
-    data = feedparser.parse(feed_url)
+    client = zulip.Client(email=opts.email, api_key=opts.api_key,
+                          site=opts.site)
 
-    for entry in data.entries:
-        entry_hash = compute_entry_hash(entry)
-        # An entry has either been published or updated.
-        entry_time  = entry.get("published_parsed", entry.get("updated_parsed",
-                                                              time.gmtime()))
-        if (time.time() - calendar.timegm(entry_time)) > OLDNESS_THRESHOLD * 60 * 60 * 24:
-            # As a safeguard against misbehaving feeds, don't try to process
-            # entries older than some threshold.
-            continue
-        if entry_hash in old_feed_hashes:
-            # We've already seen this. No need to process any older entries.
-            break
-        if (not old_feed_hashes) and (len(new_hashes) >= 3):
-            # On a first run, pick up the 3 most recent entries. An RSS feed has
-            # entries in reverse chronological order.
-            break
+    first_message = True
 
-        response = send_zulip(entry, data.feed.title)
-        if response["result"] != "success":
-            logger.error("Error processing %s" % (feed_url,))
-            logger.error(response)
-            if first_message:
-                # This is probably some fundamental problem like the stream not
-                # existing or something being misconfigured, so bail instead of
-                # getting the same error for every RSS entry.
-                log_error_and_exit("Failed to process first message")
-        # Go ahead and move on -- perhaps this entry is corrupt.
-        new_hashes.append(entry_hash)
-        first_message = False
+    for feed_url in feed_urls:
+        feed_file = os.path.join(opts.data_dir, urlparse.urlparse(feed_url).netloc)
 
-    with open(feed_file, "a") as f:
-        for hash in new_hashes:
-            f.write(hash + "\n")
+        try:
+            with open(feed_file, "r") as f:
+                old_feed_hashes = dict((line.strip(), True) for line in f.readlines())
+        except IOError:
+            old_feed_hashes = {}
 
-    logger.info("Sent zulips for %d %s entries" % (len(new_hashes), feed_url))
+        new_hashes = []
+        data = feedparser.parse(feed_url)
+
+        for entry in data.entries:
+            entry_hash = compute_entry_hash(entry)
+            # An entry has either been published or updated.
+            entry_time = entry.get("published_parsed", entry.get("updated_parsed",
+                                                                  time.gmtime()))
+            if (time.time() - calendar.timegm(entry_time)) > OLDNESS_THRESHOLD * 60 * 60 * 24:
+                # As a safeguard against misbehaving feeds, don't try to process
+                # entries older than some threshold.
+                continue
+            if entry_hash in old_feed_hashes:
+                # We've already seen this. No need to process any older entries.
+                break
+            if (not old_feed_hashes) and (len(new_hashes) >= 3):
+                # On a first run, pick up the 3 most recent entries. An RSS feed has
+                # entries in reverse chronological order.
+                break
+
+            response = send_zulip(entry, data.feed.title, client)
+            if response["result"] != "success":
+                logger.error("Error processing %s" % (feed_url,))
+                logger.error(response)
+                if first_message:
+                    # This is probably some fundamental problem like the stream not
+                    # existing or something being misconfigured, so bail instead of
+                    # getting the same error for every RSS entry.
+                    log_error_and_exit("Failed to process first message")
+            # Go ahead and move on -- perhaps this entry is corrupt.
+            new_hashes.append(entry_hash)
+            first_message = False
+
+        with open(feed_file, "a") as f:
+            for hash in new_hashes:
+                f.write(hash + "\n")
+
+        logger.info("Sent zulips for %d %s entries" % (len(new_hashes), feed_url))
+
+
+if __name__ == '__main__':
+    main()
